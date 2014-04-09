@@ -1,5 +1,7 @@
 #include<stdio.h>
+#include<string.h>
 #define MAXCAPACITY 1024
+int j;
 
 struct BigNum{char num[MAXCAPACITY];int length;int flag;};
 
@@ -62,32 +64,92 @@ void bigmid(struct BigNum *bn1, struct BigNum *bn2, struct BigNum *result);
 /*
  * result = bn1 + 1;
  */
-void biginc(struct BigNum *bn1, struct BigNum *result);
+void biginc(struct BigNum *bn1);
 
 /*
  * result = bn1 - 1
  */
-void bigdec(struct BigNum *bn1, struct BigNum *result);
+void bigdec(struct BigNum *bn1);
 
-/*
- * result = floor(sqrt(bn))
- */
-void bigfloorsqrt(struct BigNum *bn, struct BigNum *result);
-
+void bigfloorsqrt(struct BigNum *bn, struct BigNum *result)
+{
+	int i,start,end,mid;
+	struct BigNum tmp;
+	result->flag=1;
+	result->length = (bn->length + 1) / 2;
+	for(i=1;i<=result->length;i++)
+	{
+		result->num[MAXCAPACITY-i] = '0';
+	}
+	for(i=result->length;i>=1;i--)
+	{
+		start = 0;
+		end = 9;
+		while(start<=end)
+		{
+			mid = start + (end - start)/2;
+			result->num[MAXCAPACITY-i] = mid + '0';
+			bigsmallpow(result,2,&tmp);
+			if(bigcmp(&tmp,bn)<0)
+				end = mid - 1;
+			else
+				start = mid + 1;
+		}
+		result->num[MAXCAPACITY-i] = end + '0';
+	}
+}
 int main()
 {
-	int Sa,Sb;
-	struct BigNum Ba,Bb,res1,res2,result;
-	biginit(&Ba);
-	biginit(&Bb);
-	scanf("%d %d",&Sa,&Sb);
-	small2big(Sa,&Ba);
-	small2big(Sb,&Bb);
-	bigsmallpow(&Ba, Sb, &res1);
-	bigsmallpow(&Bb, Sa, &res2);
-	bigminus(&res1,&res2,&result);
-	bigoutput(&result);
-	return 0;
+	int i;
+	struct BigNum X;
+	struct BigNum temp;
+	/*struct BigNum floor,ceiling,mid,bigtwo,tmp;*/
+	scanf("%s",X.num);
+	X.flag = 1;
+	X.length = strlen(X.num);
+	for(i=1;i<=X.length;i++)
+	{
+		X.num[MAXCAPACITY-i] = X.num[X.length-i];
+	}
+	bigfloorsqrt(&X,&temp);
+	bigoutput(&temp);
+
+	/*biginit(&floor);*/
+	/*biginit(&ceiling);*/
+	/*small2big(1,&floor);*/
+	/*small2big(2,&ceiling);*/
+
+	/*biginit(&bigtwo);*/
+	/*small2big(2,&bigtwo);*/
+
+	/*bigsmallpow(&ceiling,2,&tmp);*/
+	/*while(bigcmp(&X,&tmp)==-1)*/
+	/*{*/
+		/*[>bigcpy(&ceiling,&floor);<]*/
+		/*bigmul(&ceiling,&bigtwo,&tmp);*/
+		/*bigcpy(&tmp,&ceiling);*/
+		/*bigsmallpow(&ceiling,2,&tmp);*/
+	/*}*/
+	/*bigoutput(&floor);*/
+	/*bigoutput(&ceiling);*/
+	/*while(bigcmp(&floor,&ceiling)>=0)*/
+	/*{*/
+		/*bigmid(&floor,&ceiling,&mid);*/
+		/*bigsmallpow(&mid,2,&tmp);*/
+		/*i = bigcmp(&tmp,&X);*/
+		/*if(i==-1)*/
+		/*{*/
+			/*bigcpy(&mid,&ceiling);*/
+			/*bigdec(&ceiling);*/
+		/*}*/
+		/*else*/
+		/*{*/
+			/*bigcpy(&mid,&floor);*/
+			/*biginc(&floor);*/
+		/*}*/
+	/*}*/
+	/*bigoutput(&ceiling);*/
+	/*return 0;*/
 }
 
 void biginit(struct BigNum * bn)
@@ -294,44 +356,19 @@ void bigmid(struct BigNum *bn1, struct BigNum *bn2, struct BigNum *result)
 		res.flag = 1;
 	bigcpy(&res,result);
 }
-void biginc(struct BigNum *bn1, struct BigNum *result)
+void biginc(struct BigNum *bn1)
 {
-	struct BigNum bn2;
+	struct BigNum bn2,tmp;
 	biginit(&bn2);
 	small2big(1,&bn2);
-	bigplus(bn1,&bn2,result);
+	bigplus(bn1,&bn2,&tmp);
+	bigcpy(&tmp,bn1);
 }
-void bigdec(struct BigNum *bn1, struct BigNum *result)
+void bigdec(struct BigNum *bn1)
 {
-	struct BigNum bn2;
+	struct BigNum bn2,tmp;
 	biginit(&bn2);
 	small2big(1,&bn2);
-	bigminus(bn1,&bn2,result);
-}
-void bigfloorsqrt(struct BigNum *bn, struct BigNum *result)
-{
-	int i,start,end,mid;
-	struct BigNum tmp;
-	result->flag=1;
-	result->length = (bn->length + 1) / 2;
-	for(i=1;i<=result->length;i++)
-	{
-		result->num[MAXCAPACITY-i] = '0';
-	}
-	for(i=result->length;i>=1;i--)
-	{
-		start = 0;
-		end = 9;
-		while(start<=end)
-		{
-			mid = start + (end - start)/2;
-			result->num[MAXCAPACITY-i] = mid + '0';
-			bigsmallpow(result,2,&tmp);
-			if(bigcmp(&tmp,bn)<0)
-				end = mid - 1;
-			else
-				start = mid + 1;
-		}
-		result->num[MAXCAPACITY-i] = end + '0';
-	}
+	bigminus(bn1,&bn2,&tmp);
+	bigcpy(&tmp,bn1);
 }
