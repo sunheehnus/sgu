@@ -1,7 +1,6 @@
 #include<stdio.h>
 #include<string.h>
 #define MAXCAPACITY 1024
-int j;
 
 struct BigNum{char num[MAXCAPACITY];int length;int flag;};
 
@@ -64,46 +63,27 @@ void bigmid(struct BigNum *bn1, struct BigNum *bn2, struct BigNum *result);
 /*
  * result = bn1 + 1;
  */
-void biginc(struct BigNum *bn1);
+void biginc(struct BigNum *bn1, struct BigNum *result);
 
 /*
  * result = bn1 - 1
  */
-void bigdec(struct BigNum *bn1);
+void bigdec(struct BigNum *bn1, struct BigNum *result);
 
-void bigfloorsqrt(struct BigNum *bn, struct BigNum *result)
-{
-	int i,start,end,mid;
-	struct BigNum tmp;
-	result->flag=1;
-	result->length = (bn->length + 1) / 2;
-	for(i=1;i<=result->length;i++)
-	{
-		result->num[MAXCAPACITY-i] = '0';
-	}
-	for(i=result->length;i>=1;i--)
-	{
-		start = 0;
-		end = 9;
-		while(start<=end)
-		{
-			mid = start + (end - start)/2;
-			result->num[MAXCAPACITY-i] = mid + '0';
-			bigsmallpow(result,2,&tmp);
-			if(bigcmp(&tmp,bn)<0)
-				end = mid - 1;
-			else
-				start = mid + 1;
-		}
-		result->num[MAXCAPACITY-i] = end + '0';
-	}
-}
+/*
+ * result = floor(sqrt(bn))
+ */
+void bigfloorsqrt(struct BigNum *bn, struct BigNum *result);
+/*
+ *
+ */
+void big_quick_floorsqrt(struct BigNum *bn, struct BigNum *result);
+
 int main()
 {
 	int i;
 	struct BigNum X;
 	struct BigNum temp;
-	/*struct BigNum floor,ceiling,mid,bigtwo,tmp;*/
 	scanf("%s",X.num);
 	X.flag = 1;
 	X.length = strlen(X.num);
@@ -111,45 +91,10 @@ int main()
 	{
 		X.num[MAXCAPACITY-i] = X.num[X.length-i];
 	}
-	bigfloorsqrt(&X,&temp);
+	big_quick_floorsqrt(&X,&temp);
 	bigoutput(&temp);
 
-	/*biginit(&floor);*/
-	/*biginit(&ceiling);*/
-	/*small2big(1,&floor);*/
-	/*small2big(2,&ceiling);*/
-
-	/*biginit(&bigtwo);*/
-	/*small2big(2,&bigtwo);*/
-
-	/*bigsmallpow(&ceiling,2,&tmp);*/
-	/*while(bigcmp(&X,&tmp)==-1)*/
-	/*{*/
-		/*[>bigcpy(&ceiling,&floor);<]*/
-		/*bigmul(&ceiling,&bigtwo,&tmp);*/
-		/*bigcpy(&tmp,&ceiling);*/
-		/*bigsmallpow(&ceiling,2,&tmp);*/
-	/*}*/
-	/*bigoutput(&floor);*/
-	/*bigoutput(&ceiling);*/
-	/*while(bigcmp(&floor,&ceiling)>=0)*/
-	/*{*/
-		/*bigmid(&floor,&ceiling,&mid);*/
-		/*bigsmallpow(&mid,2,&tmp);*/
-		/*i = bigcmp(&tmp,&X);*/
-		/*if(i==-1)*/
-		/*{*/
-			/*bigcpy(&mid,&ceiling);*/
-			/*bigdec(&ceiling);*/
-		/*}*/
-		/*else*/
-		/*{*/
-			/*bigcpy(&mid,&floor);*/
-			/*biginc(&floor);*/
-		/*}*/
-	/*}*/
-	/*bigoutput(&ceiling);*/
-	/*return 0;*/
+	return 0;
 }
 
 void biginit(struct BigNum * bn)
@@ -286,6 +231,7 @@ void bigplus(struct BigNum *bn1, struct BigNum *bn2, struct BigNum *result)
 void bigcpy(struct BigNum *src, struct BigNum *dst)
 {
 	int i;
+	dst->flag = src->flag;
 	dst->length = src->length;
 	for(i=0;i<src->length;i++)
 	{
@@ -296,6 +242,8 @@ void bigmul_onestep(struct BigNum *bn1, char n2, int offset, struct BigNum *resu
 {
 	int i,j,c,tmp;
 	biginit(result);
+	if(n2=='0')
+		return;
 	for(i=0;i<offset;i++)
 		result->num[MAXCAPACITY-1-i]='0';
 	for(j=0,c=0;j<bn1->length;j++)
@@ -356,19 +304,122 @@ void bigmid(struct BigNum *bn1, struct BigNum *bn2, struct BigNum *result)
 		res.flag = 1;
 	bigcpy(&res,result);
 }
-void biginc(struct BigNum *bn1)
+void biginc(struct BigNum *bn1, struct BigNum *result)
 {
-	struct BigNum bn2,tmp;
+	struct BigNum bn2;
 	biginit(&bn2);
 	small2big(1,&bn2);
-	bigplus(bn1,&bn2,&tmp);
-	bigcpy(&tmp,bn1);
+	bigplus(bn1,&bn2,result);
 }
-void bigdec(struct BigNum *bn1)
+void bigdec(struct BigNum *bn1, struct BigNum *result)
 {
-	struct BigNum bn2,tmp;
+	struct BigNum bn2;
 	biginit(&bn2);
 	small2big(1,&bn2);
-	bigminus(bn1,&bn2,&tmp);
-	bigcpy(&tmp,bn1);
+	bigminus(bn1,&bn2,result);
+}
+void bigfloorsqrt(struct BigNum *bn, struct BigNum *result)
+{
+	int i,start,end,mid;
+	struct BigNum tmp;
+	result->flag=1;
+	result->length = (bn->length + 1) / 2;
+	for(i=1;i<=result->length;i++)
+	{
+		result->num[MAXCAPACITY-i] = '0';
+	}
+	for(i=result->length;i>=1;i--)
+	{
+		start = 0;
+		end = 9;
+		while(start<=end)
+		{
+			mid = start + (end - start)/2;
+			result->num[MAXCAPACITY-i] = mid + '0';
+			bigsmallpow(result,2,&tmp);
+			if(bigcmp(&tmp,bn)<0)
+				end = mid - 1;
+			else
+				start = mid + 1;
+		}
+		result->num[MAXCAPACITY-i] = end + '0';
+	}
+}
+void buildnextquotient(struct BigNum *bn, char a)
+{
+	int i;
+	for(i=bn->length;i>0;i--)
+	{
+		bn->num[MAXCAPACITY-i-1] = bn->num[MAXCAPACITY-i];
+	}
+	bn->num[MAXCAPACITY-1] = a;
+	bn->length+=1;
+}
+void buildnextremainder(struct BigNum *bn, char a, char b)
+{
+	int i;
+	for(i=bn->length;i>0;i--)
+	{
+		bn->num[MAXCAPACITY-i-2] = bn->num[MAXCAPACITY-i];
+	}
+	bn->num[MAXCAPACITY-2] = a;
+	bn->num[MAXCAPACITY-1] = b;
+	bn->length+=2;
+}
+void big_quick_floorsqrt(struct BigNum *bn, struct BigNum *result)
+{
+	int i;
+	int pos;
+	struct BigNum tmp,tmp1,tmp2;
+	struct BigNum quotient,remainder;
+	struct BigNum quotient_times_20;
+	struct BigNum twenty;
+	biginit(&quotient);
+	biginit(&remainder);
+	biginit(&tmp);
+	biginit(&quotient_times_20);
+	biginit(&twenty);
+
+	small2big(20,&twenty);
+
+	if(bn->length&1)
+	{
+		remainder.length = 1;
+		remainder.num[MAXCAPACITY-1] = bn->num[MAXCAPACITY - bn->length];
+		pos = MAXCAPACITY - bn->length + 1;
+	}
+	else
+	{
+		remainder.length = 2;
+		remainder.num[MAXCAPACITY-2] = bn->num[MAXCAPACITY - bn->length];
+		remainder.num[MAXCAPACITY-1] = bn->num[MAXCAPACITY - bn->length + 1];
+		pos = MAXCAPACITY - bn->length + 2;
+	}
+	for(i=9;i>0;i--)
+	{
+		small2big(i*i,&tmp);
+		if(bigcmp(&tmp,&remainder)!=-1)
+			break;
+	}
+	small2big(i,&quotient);
+	bigminus(&remainder,&tmp,&tmp1);
+	bigcpy(&tmp1,&remainder);
+	while(pos<MAXCAPACITY)
+	{
+		bigmul(&quotient,&twenty,&quotient_times_20);
+		buildnextremainder(&remainder,bn->num[pos],bn->num[pos+1]);
+		for(i=9;i>=0;i--)
+		{
+			small2big(i,&tmp);
+			bigplus(&quotient_times_20,&tmp,&tmp1);
+			bigmul(&tmp1,&tmp,&tmp2);
+			if(bigcmp(&tmp2,&remainder)!=-1)
+				break;
+		}
+		buildnextquotient(&quotient,i+'0');
+		bigminus(&remainder, &tmp2, &tmp1);
+		bigcpy(&tmp1,&remainder);
+		pos+=2;
+	}
+	bigcpy(&quotient,result);
 }
