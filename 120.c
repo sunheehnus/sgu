@@ -1,3 +1,7 @@
+/*
+ * compile usage:
+ *	gcc 120.c -lm -L/lib -L/usr/lib
+ */
 #include<stdio.h>
 #include<math.h>
 #define PI 3.1415926535898
