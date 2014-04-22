@@ -39,12 +39,7 @@ int main()
 	}
 	for(i=1;i<=N;i++)
 	{
-		if(degree[i]&1)
-			DFS(i,1);
-	}
-	for(i=1;i<=N;i++)
-	{
-		if(!(degree[i]&1)&&(degree[i]>3))
+		if(degree[i]&&degree[i]!=2)
 			DFS(i,1);
 	}
 	for(i=1;i<=N;i++)
