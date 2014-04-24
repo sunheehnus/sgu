@@ -80,7 +80,6 @@ int connect_hori(struct Line l1, struct Line l_horiz)
 int main()
 {
 	int i,j,pos1,pos2;
-	/*int croleft,croright,croup,crodown;*/
 	int cro,tmp;
 	scanf("%d\n",&K);
 	for(i=1;i<=K;i++)
@@ -95,17 +94,17 @@ int main()
 			lines[i].y2 = lines[i+1].y1;
 		}
 	}
-	scanf("%d %d",&lines[0].x2,&lines[0].y2);
+	scanf("%d %d",&lines[0].x1,&lines[0].y1);
+	lines[0].x2 = 11111;
+	lines[0].y2 = lines[0].y1;
 	for(i=1;i<=K;i++)
 	{
-		if(on(lines[i],lines[0].x2,lines[0].y2))
+		if(on(lines[i],lines[0].x1,lines[0].y1))
 		{
 			printf("BORDER\n");
 			return 0;
 		}
 	}
-	lines[0].x1 = -10001;
-	lines[0].y1 = lines[0].y2;
 	for(i=1,cro=0;i<=K;i++)
 	{
 		tmp = cross(lines[0],lines[i]);
@@ -121,51 +120,17 @@ int main()
 				if((pos2=connect_hori(lines[j],lines[i]))!=0)
 					break;
 			}
-			if(pos1*pos2<0)
+			if(!(pos1&pos2))
+			{
+				printf("FUCK\n");
+				return 0;
+			}
+			if(pos1 != pos2)
 				cro-=1;
 		}
 		else if(tmp==1)
 			cro++;
 	}
-	/*lines[0].x1 = -10001;*/
-	/*lines[0].y1 = lines[0].y2;*/
-	/*for(i=1,croleft=0;i<=K;i++)*/
-	/*{*/
-		/*if(cross(lines[0],lines[i]))*/
-		/*{*/
-			/*croleft++;*/
-		/*}*/
-	/*}*/
-	/*lines[0].x1 = lines[0].x2;*/
-	/*lines[0].y1 = -10001;*/
-	/*for(i=1,crodown=0;i<=K;i++)*/
-	/*{*/
-		/*if(cross(lines[0],lines[i]))*/
-		/*{*/
-			/*crodown++;*/
-		/*}*/
-	/*}*/
-	/*lines[0].x1 = lines[0].x2;*/
-	/*lines[0].y1 = lines[0].y2;*/
-	/*lines[0].x2 = 10001;*/
-	/*lines[0].y2 = lines[0].y1;*/
-	/*for(i=1,croright=0;i<=K;i++)*/
-	/*{*/
-		/*if(cross(lines[0],lines[i]))*/
-		/*{*/
-			/*croright++;*/
-		/*}*/
-	/*}*/
-	/*lines[0].x2 = lines[0].x1;*/
-	/*lines[0].y2 = 10001;*/
-	/*for(i=1,croup=0;i<=K;i++)*/
-	/*{*/
-		/*if(cross(lines[0],lines[i]))*/
-		/*{*/
-			/*croup++;*/
-		/*}*/
-	/*}*/
-	/*if((croleft&1)&&(crodown&1)&&(croright&1)&&(croup&1))*/
 	if(cro&1)
 		printf("INSIDE\n");
 	else
