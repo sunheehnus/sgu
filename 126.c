@@ -12,14 +12,21 @@ struct boxes next(struct boxes b)
 	}
 	return b;
 }
-int equal(struct boxes a, struct boxes b)
+int gcd(int a,int b)
 {
-	return (a.big == b.big) && (a.small == b.small);
+	if(a>b)
+		gcd(b,a);
+	else
+	{
+		if(b%a==0)
+			return a;
+		return gcd(b%a,a);
+	}
 }
 int main()
 {
 	int cnt;
-	struct boxes start,f1,f2;
+	struct boxes start;
 	scanf("%d %d",&start.small,&start.big);
 	if(start.big<start.small)
 	{
@@ -32,20 +39,22 @@ int main()
 		printf("0\n");
 		return 0;
 	}
-	cnt = 0;
-	f1 = f2 = start;
-	do
+	cnt = gcd(start.small,start.big);
+	start.small/=cnt;
+	start.big/=cnt;
+	if(start.small==start.big)
+		printf("1\n");
+	else if((start.small+start.big)&(start.small+start.big-1))
+		printf("-1\n");
+	else
 	{
-		f1 = next(f1);
-		cnt ++;
-		if(f1.small==0)
+		cnt = 0;
+		while(start.small)
 		{
-			printf("%d\n",cnt);
-			return 0;
+			cnt++;
+			start = next(start);
 		}
-		f2 = next(next(f2));
+		printf("%d\n",cnt);
 	}
-	while(!equal(f1,f2));
-	printf("-1\n");
 	return 0;
 }
